@@ -1,0 +1,64 @@
+{
+  "name": "nodemailer-base64-to-s3",
+  "description": "Convert your Base64-Encoded Data URI's in `<img>` tags to Amazon S3/CloudFront URL's.",
+  "version": "0.0.1",
+  "author": "Nick Baugh <niftylettuce@gmail.com>",
+  "bugs": "https://github.com/crocodilejs/nodemailer-base64-to-s3/issues",
+  "dependencies": {
+    "aws-sdk": "^2.6.7",
+    "es6-promisify": "^5.0.0",
+    "lodash": "^4.16.4",
+    "ms": "^0.7.1",
+    "sharp": "^0.16.0",
+    "uuid": "^2.0.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.11.4",
+    "babel-plugin-transform-runtime": "^6.9.0",
+    "babel-preset-crocodile": "^1.0.0",
+    "eslint-config-crocodile": "^1.0.0",
+    "nodemailer": "^2.6.4"
+  },
+  "engines": {
+    "node": ">= 6.x"
+  },
+  "homepage": "https://github.com/crocodilejs/nodemailer-base64-to-s3",
+  "keywords": [
+    "amazon",
+    "aws",
+    "base64",
+    "cdn",
+    "cid",
+    "cloudfront",
+    "email",
+    "embedded",
+    "gif",
+    "gmail",
+    "image",
+    "img",
+    "jpeg",
+    "jpg",
+    "juice",
+    "nodemailer",
+    "png",
+    "s3",
+    "s3",
+    "s3",
+    "storage",
+    "svg",
+    "tag",
+    "template",
+    "templates",
+    "upload"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "repository": "crocodilejs/nodemailer-base64-to-s3",
+  "scripts": {
+    "compile": "rm -rf lib/ && babel -d lib src",
+    "lint": "eslint .",
+    "prepublish": "npm run test",
+    "test": "npm run lint && npm run compile",
+    "watch": "babel -w -d lib src"
+  }
+}
