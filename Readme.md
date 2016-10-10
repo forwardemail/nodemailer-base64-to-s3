@@ -103,7 +103,7 @@ Accepts the following arguments and returns a [Nodemailer plugin][nodemailer-plu
 
 * `options` (Object) - configuration options for `base64ToS3`
   * `maxAge` (Number) - `Cache-Control` headers `max-age` value in milliseconds (defaults to 1 year = `31557600000`)
-  * `dir` (String) - Amazon S3 directory inside of `aws.Bucket` to upload assets to (defaults to `/` (root) - must end with a trailing forward slash `/`) &ndash; if you want to upload to a particular folder in a bucket, then set it here
+  * `dir` (String) - Amazon S3 directory inside of `aws.params.Bucket` to upload assets to (defaults to `/` (root) - must end with a trailing forward slash `/`) &ndash; if you want to upload to a particular folder in a bucket, then set it here
   * `cloudFrontDomainName` (String) - Amazon CloudFront domain name (e.g. `gzpnk2i1spnlm.cloudfront.net`)
   * `aws` (Object) **Required** - configuration options for Amazon Web Services
     * `accessKeyId` (String) **Required** - AWS IAM Access Key ID
