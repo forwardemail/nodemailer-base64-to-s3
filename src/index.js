@@ -1,4 +1,3 @@
-
 import sharp from 'sharp';
 import uuid from 'uuid';
 import _ from 'lodash';
@@ -97,12 +96,7 @@ export default function base64ToS3(opts) {
           ContentType: 'image/png'
         };
 
-        // we cannot currently use this since it does not return a promise
-        // <https://github.com/aws/aws-sdk-js/pull/1079>
-        // await s3obj.upload({ Body }).promise();
-        //
-        // so instead we use es6-promisify to convert it to a promise
-        const data = await promisify(s3.upload, s3)(obj);
+        const data = await s3.upload(obj).promise();
 
         const replacement = (_.isString(opts.cloudFrontDomainName)) ?
           `${start}https://${opts.cloudFrontDomainName}/${data.key}${end}`
