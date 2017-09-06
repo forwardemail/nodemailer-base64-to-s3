@@ -123,9 +123,9 @@ asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
 
-aws-sdk@^2.6.7:
-  version "2.108.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.108.0.tgz#8b6f6ed8692bfc6cac1782d0424f9867d1baa5bd"
+aws-sdk@^2.109.0:
+  version "2.109.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.109.0.tgz#c3d231f444108942e3816db662cb4552abaf95bb"
   dependencies:
     buffer "4.9.1"
     crypto-browserify "1.0.9"
