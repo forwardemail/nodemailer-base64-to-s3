@@ -1,6 +1,8 @@
 
 # nodemailer-base64-to-s3
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/ladjs/nodemailer-base64-to-s3.svg)](https://greenkeeper.io/)
+
 [![Slack Status][slack-image]][slack-url]
 [![NPM version][npm-image]][npm-url]
 [![Standard JS Style][standard-image]][standard-url]
