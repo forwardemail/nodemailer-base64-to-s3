@@ -14,8 +14,7 @@
   "dependencies": {
     "aws-sdk": "^2.122.0",
     "lodash": "^4.17.4",
-    "sharp": "^0.18.4",
-    "uuid": "^3.1.0"
+    "rev-hash": "^2.0.0"
   },
   "ava": {
     "failFast": true,
@@ -24,8 +23,10 @@
   "devDependencies": {
     "auto-bind": "^1.1.0",
     "ava": "^0.22.0",
+    "cheerio": "^1.0.0-rc.2",
     "codecov": "^2.3.0",
     "cross-env": "^5.0.5",
+    "dotenv": "^4.0.0",
     "eslint": "^4.5.0",
     "eslint-config-prettier": "^2.3.0",
     "eslint-plugin-prettier": "^2.2.0",
@@ -37,6 +38,7 @@
     "prettier": "^1.6.1",
     "remark-cli": "^4.0.0",
     "remark-preset-github": "^0.0.6",
+    "validator": "^9.0.0",
     "xo": "^0.19.0"
   },
   "engines": {

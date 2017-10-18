@@ -1,10 +1,9 @@
 const { promisify } = require('util');
 const zlib = require('zlib');
-const sharp = require('sharp');
-const uuid = require('uuid');
 const _ = require('lodash');
 const ms = require('ms');
 const AWS = require('aws-sdk');
+const revHash = require('rev-hash');
 
 const regexp = new RegExp(
   // eslint-disable-next-line max-len
@@ -68,19 +67,17 @@ const base64ToS3 = opts => {
 
   function transformImage(original, start, mimeType, base64, end) {
     return new Promise(async (resolve, reject) => {
-      // create a buffer of the base64 image
-      // and convert it to a png
-      const buffer = await sharp(Buffer.from(base64, 'base64'))
-        .png()
-        .toBuffer();
-
       try {
+        // create a buffer of the base64 image
+        // and convert it to a png
+        const buffer = Buffer.from(base64, 'base64');
+
         // apply transformation and gzip file
         const Body = await promisify(zlib.gzip).bind(zlib)(buffer);
 
         // generate random filename
         // get the file extension based on mimeType
-        const Key = `${opts.dir}${uuid.v4()}.png`;
+        const Key = `${opts.dir}${revHash(base64)}.png`;
 
         const obj = {
           Key,
@@ -95,7 +92,7 @@ const base64ToS3 = opts => {
         // <https://github.com/aws/aws-sdk-js/pull/1079>
         // await s3obj.upload({ Body }).promise();
         //
-        // so instead we use es6-promisify to convert it to a promise
+        // so instead we use promisify to convert it to a promise
         const data = await promisify(s3.upload).bind(s3)(obj);
 
         const replacement = _.isString(opts.cloudFrontDomainName)

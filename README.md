@@ -31,7 +31,7 @@
 
 * :cloud: Converts `<img>` tags with Base64-Encoded Data URI's to absolute paths stored on [S3][] (or optionally [CloudFront][]).
 * :muscle: Supports all image types (`png|jpg|jpeg|gif|svg`) and converts them to optimized `png` using [sharp][]. Unfortunately Gmail does not have great SVG support, and not all clients can render SVG – so we use PNG's for now.
-* :lock: Uses `uuid.v4()` to prevent asset naming collisions in your S3 bucket (and to avoid Gmail image cache issues) via [uuid][].
+* :lock: Uses [rev-hash][] to prevent asset naming collisions in your S3 bucket (and to avoid Gmail image cache issues).
 * :zap: Encodes your images using gzip so your downloads are [compressed and faster][s3-article] (uses `zlib.gzip`) via [zlib][].
 * :tada: Perfect alternative to [cid][cid-url] embedded images.
 * :crystal_ball: Built for [Lad][] and [font-awesome-assets][].
@@ -143,7 +143,7 @@ Here's a snippet from the navbar shown in the screenshot above. We utilize [font
 
 [cloudfront]: https://aws.amazon.com/cloudfront/pricing/
 
-[uuid]: https://www.npmjs.com/package/uuid
+[rev-hash]: https://github.com/sindresorhus/rev-hash
 
 [zlib]: https://nodejs.org/api/zlib.html
 
