@@ -7,7 +7,7 @@
 [![made with lass](https://img.shields.io/badge/made_with-lass-95CC28.svg)](https://lass.js.org)
 [![license](https://img.shields.io/github/license/ladjs/nodemailer-base64-to-s3.svg)](<>)
 
-> Convert your Base64-Encoded Data URI's in <img> tags to Amazon S3/CloudFront URL's
+> Convert your base64 encoded data URI's in `<img>` tags to Amazon S3/CloudFront URL's
 
 <img src="https://cdn.rawgit.com/ladjs/nodemailer-base64-to-s3/master/media/screenshot.png" width="361.5" height="80.75" />
 
@@ -29,12 +29,13 @@
 
 > **Tip:** This package is bundled with [Lad][] and already pre-configured for you.
 
-* :cloud: Converts `<img>` tags with Base64-Encoded Data URI's to absolute paths stored on [S3][] (or optionally [CloudFront][]).
-* :muscle: Supports all image types (`png|jpg|jpeg|gif|svg`) and converts them to optimized `png` using [sharp][]. Unfortunately Gmail does not have great SVG support, and not all clients can render SVG – so we use PNG's for now.
-* :lock: Uses [rev-hash][] to prevent asset naming collisions in your S3 bucket (and to avoid Gmail image cache issues).
-* :zap: Encodes your images using gzip so your downloads are [compressed and faster][s3-article] (uses `zlib.gzip`) via [zlib][].
-* :tada: Perfect alternative to [cid][cid-url] embedded images.
-* :crystal_ball: Built for [Lad][] and [font-awesome-assets][].
+* Converts `<img>` tags with base64 encoded data URI's to absolute paths stored on [S3][] (or optionally [CloudFront][]).
+* Supports all standard data URI image types (PNG, JPEG, GIF, SVG)
+* Checks Amazon S3 bucket before uploading images to prevent a redundant double-upload of the same file (better performance)
+* Uses [rev-hash][] to prevent asset naming collisions in your S3 bucket (and to avoid Gmail image cache issues).
+* Encodes your images using gzip so your downloads are [compressed and faster][s3-article] (uses `zlib.gzip`) via [zlib][].
+* Perfect alternative to [cid][cid-url] embedded images.
+* Built for [Lad][] and [font-awesome-assets][].
 
 
 ## Install
@@ -130,8 +131,6 @@ Here's a snippet from the navbar shown in the screenshot above. We utilize [font
 [font-awesome-assets]: https://github.com/crocodilejs/font-awesome-assets
 
 [cid-url]: https://sendgrid.com/blog/embedding-images-emails-facts/
-
-[sharp]: https://github.com/lovell/sharp
 
 [s3-article]: http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html
 

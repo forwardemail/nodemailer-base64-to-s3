@@ -1,12 +1,12 @@
 const { promisify } = require('util');
 const zlib = require('zlib');
+const mime = require('mime-types');
 const _ = require('lodash');
 const ms = require('ms');
 const AWS = require('aws-sdk');
 const revHash = require('rev-hash');
 
 const regexp = new RegExp(
-  // eslint-disable-next-line max-len
   /(<img[\s\S]*? src=")data:(image\/(?:png|jpe?g|gif|svg\+xml));base64,([\s\S]*?)("[\s\S]*?>)/g
 );
 
@@ -44,7 +44,18 @@ const base64ToS3 = opts => {
       let result;
       do {
         result = regexp.exec(html);
-        if (result) promises.push(transformImage(...result));
+        if (result) {
+          const [original, start, mimeType, base64, end] = result;
+          promises.push(
+            transformImage({
+              original,
+              start,
+              mimeType,
+              base64,
+              end
+            })
+          );
+        }
       } while (result);
 
       // fulfill promises
@@ -65,45 +76,39 @@ const base64ToS3 = opts => {
     }
   }
 
-  function transformImage(original, start, mimeType, base64, end) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        // create a buffer of the base64 image
-        // and convert it to a png
-        const buffer = Buffer.from(base64, 'base64');
+  async function transformImage({ original, start, mimeType, base64, end }) {
+    // create a buffer of the base64 image
+    // and convert it to a png
+    const buffer = Buffer.from(base64, 'base64');
 
-        // apply transformation and gzip file
-        const Body = await promisify(zlib.gzip).bind(zlib)(buffer);
+    // apply transformation and gzip file
+    const Body = await promisify(zlib.gzip).bind(zlib)(buffer);
 
-        // generate random filename
-        // get the file extension based on mimeType
-        const Key = `${opts.dir}${revHash(base64)}.png`;
+    // generate random filename
+    // get the file extension based on mimeType
+    const Key = `${opts.dir}${revHash(base64)}.${mime.extension(mimeType)}`;
 
-        const obj = {
-          Key,
-          ACL: 'public-read',
-          Body,
-          CacheControl: `public, max-age=${opts.maxAge}`,
-          ContentEncoding: 'gzip',
-          ContentType: 'image/png'
-        };
+    const obj = {
+      Key,
+      ACL: 'public-read',
+      Body,
+      CacheControl: `public, max-age=${opts.maxAge}`,
+      ContentEncoding: 'gzip',
+      ContentType: 'image/png'
+    };
 
-        // we cannot currently use this since it does not return a promise
-        // <https://github.com/aws/aws-sdk-js/pull/1079>
-        // await s3obj.upload({ Body }).promise();
-        //
-        // so instead we use promisify to convert it to a promise
-        const data = await promisify(s3.upload).bind(s3)(obj);
+    // we cannot currently use this since it does not return a promise
+    // <https://github.com/aws/aws-sdk-js/pull/1079>
+    // await s3obj.upload({ Body }).promise();
+    //
+    // so instead we use promisify to convert it to a promise
+    const data = await promisify(s3.upload).bind(s3)(obj);
 
-        const replacement = _.isString(opts.cloudFrontDomainName)
-          ? `${start}https://${opts.cloudFrontDomainName}/${data.key}${end}`
-          : `${start}${data.Location}${end}`;
+    const replacement = _.isString(opts.cloudFrontDomainName)
+      ? `${start}https://${opts.cloudFrontDomainName}/${data.key}${end}`
+      : `${start}${data.Location}${end}`;
 
-        resolve([original, replacement]);
-      } catch (err) {
-        reject(err);
-      }
-    });
+    return [original, replacement];
   }
 
   return compile;
