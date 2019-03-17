@@ -78,7 +78,6 @@ Object.keys(html).forEach(key => {
 
     const clone = $('img').attr('src');
     t.true(validator.isURL(clone));
-
     t.is(url, clone);
   });
 });

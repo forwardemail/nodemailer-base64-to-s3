@@ -5,6 +5,7 @@ const _ = require('lodash');
 const ms = require('ms');
 const AWS = require('aws-sdk');
 const revHash = require('rev-hash');
+const Lipo = require('lipo');
 
 const regexp = new RegExp(
   /(<img[\s\S]*? src=")data:(image\/(?:png|jpe?g|gif|svg\+xml));base64,([\s\S]*?)("[\s\S]*?>)/g
@@ -79,14 +80,26 @@ const base64ToS3 = opts => {
   async function transformImage({ original, start, mimeType, base64, end }) {
     // create a buffer of the base64 image
     // and convert it to a png
-    const buffer = Buffer.from(base64, 'base64');
+    let buffer = Buffer.from(base64, 'base64');
+
+    // get the image extension
+    let extension = mime.extension(mimeType);
+
+    // convert and optimize the image if it is an SVG file
+    if (extension === 'svg') {
+      const lipo = new Lipo();
+      buffer = await lipo(buffer)
+        .png()
+        .toBuffer();
+      extension = 'png';
+    }
 
     // apply transformation and gzip file
     const Body = await promisify(zlib.gzip).bind(zlib)(buffer);
 
     // generate random filename
     // get the file extension based on mimeType
-    const Key = `${opts.dir}${revHash(base64)}.${mime.extension(mimeType)}`;
+    const Key = `${opts.dir}${revHash(base64)}.${extension}`;
 
     const obj = {
       Key,

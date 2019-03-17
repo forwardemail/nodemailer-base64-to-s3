@@ -20,7 +20,8 @@
     "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com/)"
   ],
   "dependencies": {
-    "aws-sdk": "^2.421.0",
+    "aws-sdk": "^2.422.0",
+    "lipo": "^0.0.10",
     "lodash": "^4.17.11",
     "mime-types": "^2.1.22",
     "rev-hash": "^2.0.0"
@@ -34,7 +35,7 @@
     "codecov": "^3.2.0",
     "cross-env": "^5.2.0",
     "dotenv": "^7.0.0",
-    "eslint": "^5.15.1",
+    "eslint": "^5.15.2",
     "eslint-config-xo-lass": "^1.0.3",
     "eslint-plugin-node": "^8.0.1",
     "fixpack": "^2.3.1",
