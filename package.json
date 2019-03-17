@@ -1,7 +1,7 @@
 {
   "name": "nodemailer-base64-to-s3",
   "description": "Convert your Base64-Encoded Data URI's in <img> tags to Amazon S3/CloudFront URL's",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "author": "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com/)",
   "ava": {
     "failFast": true,
