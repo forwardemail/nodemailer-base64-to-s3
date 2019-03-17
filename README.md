@@ -31,6 +31,7 @@
 
 * Converts `<img>` tags with base64 encoded data URI's to absolute paths stored on [S3][] (or optionally [CloudFront][]).
 * Supports all standard data URI image types (PNG, JPEG, GIF, SVG)
+* Converts SVG images to PNG images using [Lipo][lipo] (since SVG doesn't render in all email clients)
 * Checks Amazon S3 bucket before uploading images to prevent a redundant double-upload of the same file (better performance)
 * Uses [rev-hash][] to prevent asset naming collisions in your S3 bucket (and to avoid Gmail image cache issues).
 * Encodes your images using gzip so your downloads are [compressed and faster][s3-article] (uses `zlib.gzip`) via [zlib][].
@@ -153,3 +154,5 @@ Here's a snippet from the navbar shown in the screenshot above. We utilize [font
 [nunjucks-highlight.js]: https://github.com/niftylettuce/nunjucks-highlight.js
 
 [lad]: https://lad.js.org
+
+[lipo]: https://lipo.io
