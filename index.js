@@ -1,5 +1,6 @@
 const { promisify } = require('util');
 const zlib = require('zlib');
+const isSANB = require('is-string-and-not-blank');
 const mime = require('mime-types');
 const _ = require('lodash');
 const ms = require('ms');
@@ -11,11 +12,15 @@ const regexp = new RegExp(
   /(<img[\s\S]*? src=")data:(image\/(?:png|jpe?g|gif|svg\+xml));base64,([\s\S]*?)("[\s\S]*?>)/g
 );
 
+const gzip = promisify(zlib.gzip).bind(zlib);
+
 const base64ToS3 = opts => {
   // set defaults
   opts = _.defaults(opts, {
+    aws: {},
     maxAge: ms('1yr'),
-    dir: '/'
+    dir: '/',
+    cloudFrontDomainName: process.env.AWS_CLOUDFRONT_DOMAIN || ''
   });
 
   if (!_.isNumber(opts.maxAge))
@@ -27,13 +32,9 @@ const base64ToS3 = opts => {
 
   if (_.startsWith(opts.dir, '/')) opts.dir = opts.dir.substring(1);
 
-  if (!_.isObject(opts.aws))
-    throw new Error(
-      'AWS config object `aws` missing (e.g. `base64ToS3({ aws: { ... } })`'
-    );
-
   // prepare AWS upload using config
   const s3 = new AWS.S3(opts.aws);
+  const upload = promisify(s3.upload).bind(s3);
 
   async function compile(mail, fn) {
     try {
@@ -41,31 +42,31 @@ const base64ToS3 = opts => {
       let html = await mail.resolveContent(mail.data, 'html');
 
       // create a transformation array of promises
-      const promises = [];
+      const arr = [];
       let result;
       do {
         result = regexp.exec(html);
         if (result) {
           const [original, start, mimeType, base64, end] = result;
-          promises.push(
-            transformImage({
-              original,
-              start,
-              mimeType,
-              base64,
-              end
-            })
-          );
+          arr.push({
+            original,
+            start,
+            mimeType,
+            base64,
+            end
+          });
         }
       } while (result);
 
       // fulfill promises
-      const replacements = await Promise.all(promises);
+      const replacements = await Promise.all(
+        arr.map(obj => transformImage(obj))
+      );
 
       // go through each replacement and replace original with new
-      _.each(replacements, replacement => {
-        html = html.replace(...replacement);
-      });
+      for (let i = 0; i < replacements.length; i++) {
+        html = html.replace(...replacements[i]);
+      }
 
       // update the HTML of the email
       mail.data.html = html;
@@ -95,7 +96,7 @@ const base64ToS3 = opts => {
     }
 
     // apply transformation and gzip file
-    const Body = await promisify(zlib.gzip).bind(zlib)(buffer);
+    const Body = await gzip(buffer);
 
     // generate random filename
     // get the file extension based on mimeType
@@ -115,9 +116,9 @@ const base64ToS3 = opts => {
     // await s3obj.upload({ Body }).promise();
     //
     // so instead we use promisify to convert it to a promise
-    const data = await promisify(s3.upload).bind(s3)(obj);
+    const data = await upload(obj);
 
-    const replacement = _.isString(opts.cloudFrontDomainName)
+    const replacement = isSANB(opts.cloudFrontDomainName)
       ? `${start}https://${opts.cloudFrontDomainName}/${data.key}${end}`
       : `${start}${data.Location}${end}`;
 
