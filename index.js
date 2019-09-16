@@ -156,7 +156,12 @@ const base64ToS3 = opts => {
             'fallbackPrefix was not specified, you cannot use file:/// in production mode'
           );
         const filePath = path.join(opts.fallbackDir, fileName);
-        await mkdir(opts.fallbackDir, { recursive: true });
+        try {
+          await mkdir(opts.fallbackDir, { recursive: true });
+        } catch (err) {
+          if (err.code !== 'EEXIST') throw err;
+        }
+
         await writeFile(filePath, buffer);
         const replacement = _.isString(opts.fallbackPrefix)
           ? `${start}${opts.fallbackPrefix}${fileName}${end}`
