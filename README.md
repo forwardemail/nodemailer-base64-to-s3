@@ -81,6 +81,9 @@ Accepts the following arguments and returns a [Nodemailer plugin][nodemailer-plu
   * `aws` (Object) **Required** - configuration options for Amazon Web Services
     * `params` (Object) **Required**
       * `Bucket` (String) **Required** - AWS Bucket Name
+  * `fallbackDir` (String) - a fallback directory to write to in case Amazon S3 upload fails (automatically set to `os.tmpdir()` otherwise if `NODE_ENV` is production then it is set to false and disabled) - you may want to specify the full path to your build directory so files are stored there (e.g. `fallbackDir: path.join(__dirname, 'build', 'img', 'nodemailer')`)
+  * `fallbackPrefix` (String or Boolean) - the prefix to use for relative paths, e.g. you don't want to have `file:///some/tmp/dir/foo.png`, but you want to have `https://example.com/img/foo.png` instead - so specify that prefix here (e.g. `fallbackPrefix: 'http://localhost:3000/img/nodemailer/'` if you have a build directory `fallbackDir` of `path.join(__dirname, 'build', 'img', 'nodemailer')` and `path.join(__dirname, 'build')` is being served by your web server).  The default value is `false` and therefore `file:///` relative path will be used instead.
+  * `logger` (Object) - a logger to use in the event of an error while uploading to S3 (defaults to `console`)
 
 
 ## Gmail Example

@@ -1,11 +1,13 @@
 const path = require('path');
-const test = require('ava');
-const nodemailer = require('nodemailer');
-const ms = require('ms');
-const dotenv = require('dotenv');
+
 const cheerio = require('cheerio');
-const validator = require('validator');
+const dotenv = require('dotenv');
 const imageToUri = require('image-to-uri');
+const ms = require('ms');
+const nodemailer = require('nodemailer');
+const test = require('ava');
+const validator = require('validator');
+
 const base64ToS3 = require('..');
 
 const html = {};
@@ -80,4 +82,29 @@ Object.keys(html).forEach(key => {
     t.true(validator.isURL(clone));
     t.is(url, clone);
   });
+});
+
+test('writes to a fallback directory if AWS upload failed (e.g. no bucket param)', async t => {
+  const customTransport = nodemailer.createTransport({ jsonTransport: true });
+  customTransport.use(
+    'compile',
+    base64ToS3({
+      maxAge: ms('1d')
+    })
+  );
+  const res = await customTransport.sendMail({
+    html: html.png,
+    subject: 'subject',
+    to: 'niftylettuce@gmail.com',
+    from: 'niftylettuce@gmail.com'
+  });
+
+  const message = JSON.parse(res.message);
+  const $ = cheerio.load(message.html);
+  t.true(
+    validator.isURL($('img').attr('src'), {
+      protocols: ['file'],
+      require_host: false
+    })
+  );
 });

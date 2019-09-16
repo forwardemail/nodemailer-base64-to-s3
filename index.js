@@ -1,18 +1,26 @@
-const { promisify } = require('util');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const zlib = require('zlib');
+const { promisify } = require('util');
+
+const AWS = require('aws-sdk');
+const Lipo = require('lipo');
+const _ = require('lodash');
+const debug = require('debug')('nodemailer-base64-to-s3');
 const isSANB = require('is-string-and-not-blank');
 const mime = require('mime-types');
-const _ = require('lodash');
 const ms = require('ms');
-const AWS = require('aws-sdk');
 const revHash = require('rev-hash');
-const Lipo = require('lipo');
 
 const regexp = new RegExp(
   /(<img[\s\S]*? src=")data:(image\/(?:png|jpe?g|gif|svg\+xml));base64,([\s\S]*?)("[\s\S]*?>)/g
 );
-
+const PROD = process.env.NODE_ENV === 'production';
+const mkdir = promisify(fs.mkdir).bind(fs);
+const writeFile = promisify(fs.writeFile).bind(fs);
 const gzip = promisify(zlib.gzip).bind(zlib);
+const cache = {};
 
 const base64ToS3 = opts => {
   // set defaults
@@ -20,7 +28,10 @@ const base64ToS3 = opts => {
     aws: {},
     maxAge: ms('1yr'),
     dir: '/',
-    cloudFrontDomainName: process.env.AWS_CLOUDFRONT_DOMAIN || ''
+    cloudFrontDomainName: process.env.AWS_CLOUDFRONT_DOMAIN || '',
+    fallbackDir: process.env.NODE_ENV === 'production' ? false : os.tmpdir(),
+    fallbackPrefix: false,
+    logger: console
   });
 
   if (!_.isNumber(opts.maxAge))
@@ -34,6 +45,12 @@ const base64ToS3 = opts => {
 
   // prepare AWS upload using config
   const s3 = new AWS.S3(opts.aws);
+
+  // we cannot currently use this since it does not return a promise
+  // <https://github.com/aws/aws-sdk-js/pull/1079>
+  // await s3obj.upload({ Body }).promise();
+  //
+  // so instead we use promisify to convert it to a promise
   const upload = promisify(s3.upload).bind(s3);
 
   async function compile(mail, fn) {
@@ -79,20 +96,25 @@ const base64ToS3 = opts => {
   }
 
   async function transformImage({ original, start, mimeType, base64, end }) {
-    // create a buffer of the base64 image
-    // and convert it to a png
-    let buffer = Buffer.from(base64, 'base64');
-
     // get the image extension
     let extension = mime.extension(mimeType);
-
     // convert and optimize the image if it is an SVG file
-    if (extension === 'svg') {
+    if (extension === 'svg') extension = 'png';
+    // if we already cached the base64 then return it
+    const hash = revHash(`${extension}:${base64}`);
+    let buffer;
+    if (cache[hash]) {
+      buffer = cache[hash];
+      debug(`hitting cache for ${hash}`);
+    } else {
+      // create a buffer of the base64 image
+      // and convert it to a png
+      buffer = Buffer.from(base64, 'base64');
       const lipo = new Lipo();
       buffer = await lipo(buffer)
         .png()
         .toBuffer();
-      extension = 'png';
+      cache[hash] = buffer;
     }
 
     // apply transformation and gzip file
@@ -100,7 +122,8 @@ const base64ToS3 = opts => {
 
     // generate random filename
     // get the file extension based on mimeType
-    const Key = `${opts.dir}${revHash(base64)}.${extension}`;
+    const fileName = `${hash}.${extension}`;
+    const Key = `${opts.dir}${fileName}`;
 
     const obj = {
       Key,
@@ -111,18 +134,38 @@ const base64ToS3 = opts => {
       ContentType: 'image/png'
     };
 
-    // we cannot currently use this since it does not return a promise
-    // <https://github.com/aws/aws-sdk-js/pull/1079>
-    // await s3obj.upload({ Body }).promise();
-    //
-    // so instead we use promisify to convert it to a promise
-    const data = await upload(obj);
+    // use a fallback dir if the upload fails
+    // but only if the environment is not production
+    try {
+      const data = cache[Key] ? cache[Key] : await upload(obj);
+      if (cache[Key]) debug(`hitting cache for ${Key}`);
 
-    const replacement = isSANB(opts.cloudFrontDomainName)
-      ? `${start}https://${opts.cloudFrontDomainName}/${data.key}${end}`
-      : `${start}${data.Location}${end}`;
+      const replacement = isSANB(opts.cloudFrontDomainName)
+        ? `${start}https://${opts.cloudFrontDomainName}/${data.key}${end}`
+        : `${start}${data.Location}${end}`;
 
-    return [original, replacement];
+      cache[Key] = data;
+
+      return [original, replacement];
+    } catch (err) {
+      // fallback in case upload to S3 fails for whatever reason
+      if (opts.fallbackDir) {
+        if (PROD) opts.logger.error(err);
+        if (!_.isString(opts.fallbackPrefix) && PROD)
+          throw new Error(
+            'fallbackPrefix was not specified, you cannot use file:/// in production mode'
+          );
+        const filePath = path.join(opts.fallbackDir, fileName);
+        await mkdir(opts.fallbackDir, { recursive: true });
+        await writeFile(filePath, buffer);
+        const replacement = _.isString(opts.fallbackPrefix)
+          ? `${start}${opts.fallbackPrefix}${fileName}${end}`
+          : `${start}file://${filePath}${end}`;
+        return [original, replacement];
+      }
+
+      throw err;
+    }
   }
 
   return compile;
