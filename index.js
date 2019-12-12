@@ -22,9 +22,9 @@ const writeFile = promisify(fs.writeFile).bind(fs);
 const gzip = promisify(zlib.gzip).bind(zlib);
 const cache = {};
 
-const base64ToS3 = opts => {
+const base64ToS3 = (options = {}) => {
   // set defaults
-  opts = _.defaults(opts, {
+  const opts = _.defaults(options, {
     aws: {},
     maxAge: ms('1yr'),
     dir: '/',
@@ -41,7 +41,7 @@ const base64ToS3 = opts => {
     throw new Error('Directory name `dir` must be a String');
   else if (!_.endsWith(opts.dir, '/')) opts.dir += '/';
 
-  if (_.startsWith(opts.dir, '/')) opts.dir = opts.dir.substring(1);
+  if (_.startsWith(opts.dir, '/')) opts.dir = opts.dir.slice(1);
 
   // prepare AWS upload using config
   const s3 = new AWS.S3(opts.aws);
@@ -81,8 +81,8 @@ const base64ToS3 = opts => {
       );
 
       // go through each replacement and replace original with new
-      for (let i = 0; i < replacements.length; i++) {
-        html = html.replace(...replacements[i]);
+      for (const element of replacements) {
+        html = html.replace(...element);
       }
 
       // update the HTML of the email
