@@ -24,7 +24,7 @@
     "debug": "^4.1.1",
     "is-string-and-not-blank": "^0.0.2",
     "lipo": "^1.0.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "mime-types": "^2.1.25",
     "rev-hash": "^3.0.0"
   },
