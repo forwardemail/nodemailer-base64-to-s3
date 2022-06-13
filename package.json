@@ -54,7 +54,7 @@
   "engines": {
     "node": ">=12.13.0"
   },
-  "files": "index.js",
+  "files": [ "index.js" ],
   "homepage": "https://github.com/ladjs/nodemailer-base64-to-s3",
   "husky": {
     "hooks": {
