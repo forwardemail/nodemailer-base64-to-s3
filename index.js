@@ -5,7 +5,7 @@ const zlib = require('zlib');
 const { promisify } = require('util');
 
 const AWS = require('aws-sdk');
-const Lipo = require('lipo');
+const sharp = require('sharp');
 const _ = require('lodash');
 const debug = require('debug')('nodemailer-base64-to-s3');
 const isSANB = require('is-string-and-not-blank');
@@ -109,9 +109,7 @@ const base64ToS3 = (options = {}) => {
     } else {
       // create a buffer of the base64 image
       // and convert it to a png
-      buffer = Buffer.from(base64, 'base64');
-      const lipo = new Lipo();
-      buffer = await lipo(buffer)
+      buffer = await sharp(Buffer.from(base64, 'base64'))
         .png()
         .toBuffer();
       cache[hash] = buffer;

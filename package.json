@@ -23,10 +23,10 @@
     "aws-sdk": "^2.588.0",
     "debug": "^4.1.1",
     "is-string-and-not-blank": "^0.0.2",
-    "lipo": "^1.0.1",
     "lodash": "^4.17.15",
     "mime-types": "^2.1.25",
-    "rev-hash": "^3.0.0"
+    "rev-hash": "^3.0.0",
+    "sharp": "^0.30.6"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.2.0",
@@ -52,8 +52,9 @@
     "xo": "^0.25.3"
   },
   "engines": {
-    "node": ">=8.3"
+    "node": ">=12.13.0"
   },
+  "files": "index.js",
   "homepage": "https://github.com/ladjs/nodemailer-base64-to-s3",
   "husky": {
     "hooks": {
