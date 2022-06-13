@@ -1,4 +1,5 @@
 const path = require('path');
+const process = require('process');
 
 const cheerio = require('cheerio');
 const dotenv = require('dotenv');
@@ -12,11 +13,11 @@ const base64ToS3 = require('..');
 
 const html = {};
 
-['png', 'jpg', 'jpeg', 'gif', 'svg'].forEach(type => {
+for (const type of ['png', 'jpg', 'jpeg', 'gif', 'svg']) {
   html[type] = `<img src="${imageToUri(
     path.join(__dirname, 'fixtures', `image.${type}`)
   )}" />`;
-});
+}
 
 const transport = nodemailer.createTransport({ jsonTransport: true });
 
@@ -38,29 +39,29 @@ transport.use(
   })
 );
 
-test('returns a function', t => {
+test('returns a function', (t) => {
   t.true(typeof base64ToS3 === 'function');
 });
 
-Object.keys(html).forEach(key => {
-  test(`converts base64 encoded ${key}`, async t => {
+for (const key of Object.keys(html)) {
+  test(`converts base64 encoded ${key}`, async (t) => {
     const res = await transport.sendMail({
       html: html[key],
       subject: 'subject',
-      to: 'niftylettuce@gmail.com',
-      from: 'niftylettuce@gmail.com'
+      to: 'test@example.com',
+      from: 'test@example.com'
     });
 
     const $ = cheerio.load(JSON.parse(res.message).html);
     t.true(validator.isURL($('img').attr('src')));
   });
 
-  test(`converts the same ${key} and does not create new path`, async t => {
+  test(`converts the same ${key} and does not create new path`, async (t) => {
     let res = await transport.sendMail({
       html: html[key],
       subject: 'subject',
-      to: 'niftylettuce@gmail.com',
-      from: 'niftylettuce@gmail.com'
+      to: 'test@example.com',
+      from: 'test@example.com'
     });
 
     let $ = cheerio.load(JSON.parse(res.message).html);
@@ -72,8 +73,8 @@ Object.keys(html).forEach(key => {
     res = await transport.sendMail({
       html: html[key],
       subject: 'subject',
-      to: 'niftylettuce@gmail.com',
-      from: 'niftylettuce@gmail.com'
+      to: 'test@example.com',
+      from: 'test@example.com'
     });
 
     $ = cheerio.load(JSON.parse(res.message).html);
@@ -82,9 +83,9 @@ Object.keys(html).forEach(key => {
     t.true(validator.isURL(clone));
     t.is(url, clone);
   });
-});
+}
 
-test('writes to a fallback directory if AWS upload failed (e.g. no bucket param)', async t => {
+test('writes to a fallback directory if AWS upload failed (e.g. no bucket param)', async (t) => {
   const customTransport = nodemailer.createTransport({ jsonTransport: true });
   customTransport.use(
     'compile',
@@ -95,8 +96,8 @@ test('writes to a fallback directory if AWS upload failed (e.g. no bucket param)
   const res = await customTransport.sendMail({
     html: html.png,
     subject: 'subject',
-    to: 'niftylettuce@gmail.com',
-    from: 'niftylettuce@gmail.com'
+    to: 'test@example.com',
+    from: 'test@example.com'
   });
 
   const message = JSON.parse(res.message);

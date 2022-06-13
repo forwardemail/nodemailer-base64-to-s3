@@ -1,15 +1,14 @@
 # nodemailer-base64-to-s3
 
-[![build status](https://img.shields.io/travis/ladjs/nodemailer-base64-to-s3.svg)](https://travis-ci.org/ladjs/nodemailer-base64-to-s3)
-[![code coverage](https://img.shields.io/codecov/c/github/ladjs/nodemailer-base64-to-s3.svg)](https://codecov.io/gh/ladjs/nodemailer-base64-to-s3)
+[![build status](https://github.com/forwardemail/nodemailer-base64-to-s3/actions/workflows/ci.yml/badge.svg)](https://github.com/forwardemail/nodemailer-base64-to-s3/actions/workflows/ci.yml)
 [![code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![made with lass](https://img.shields.io/badge/made_with-lass-95CC28.svg)](https://lass.js.org)
-[![license](https://img.shields.io/github/license/ladjs/nodemailer-base64-to-s3.svg)](<>)
+[![license](https://img.shields.io/github/license/forwardemail/nodemailer-base64-to-s3.svg)]()
 
 > Convert your base64 encoded data URI's in `<img>` tags to Amazon S3/CloudFront URL's
 
-<img src="https://cdn.rawgit.com/ladjs/nodemailer-base64-to-s3/master/media/screenshot.png" width="361.5" height="80.75" />
+<img src="https://cdn.rawgit.com/forwardemail/nodemailer-base64-to-s3/master/media/screenshot.png" width="361.5" height="80.75" />
 
 > It's the perfect alternative to cid-based [embedded images][nodemailer-doc]!
 
@@ -31,7 +30,7 @@
 
 * Converts `<img>` tags with base64 encoded data URI's to absolute paths stored on [S3][] (or optionally [CloudFront][]).
 * Supports all standard data URI image types (PNG, JPEG, GIF, SVG)
-* Converts SVG images to PNG images using [Lipo][lipo] (since SVG doesn't render in all email clients)
+* Converts SVG images to PNG images using [Sharp][sharp] (since SVG doesn't render in all email clients)
 * Checks Amazon S3 bucket before uploading images to prevent a redundant double-upload of the same file (better performance)
 * Uses [rev-hash][] to prevent asset naming collisions in your S3 bucket (and to avoid Gmail image cache issues).
 * Encodes your images using gzip so your downloads are [compressed and faster][s3-article] (uses `zlib.gzip`) via [zlib][].
@@ -45,12 +44,6 @@
 
 ```sh
 npm install nodemailer-base64-to-s3
-```
-
-[yarn][]:
-
-```sh
-yarn add nodemailer-base64-to-s3
 ```
 
 
@@ -96,7 +89,7 @@ Above we have a [Lad][] sample email sent using [Nodemailer][nodemailer] and [Nu
 
 > What does it look like behind the scenes?
 
-Here's a snippet from the navbar shown in the screenshot above. We utilize [font-awesome-assets][font-awesome-assets] and [nunjucks-highlight.js][nunjucks-highlight.js] for rendering the icons/images and code block.
+Here's a snippet from the navbar shown in the screenshot above. We utilize [font-awesome-assets][font-awesome-assets] for rendering the icons/images and code block.
 
 ```nunjucks
 <div class="container header p-y-1">
@@ -124,11 +117,9 @@ Here's a snippet from the navbar shown in the screenshot above. We utilize [font
 [MIT](LICENSE) © [Nick Baugh](http://niftylettuce.com/)
 
 
-## 
+##
 
 [npm]: https://www.npmjs.com/
-
-[yarn]: https://yarnpkg.com/
 
 [font-awesome-assets]: https://github.com/crocodilejs/font-awesome-assets
 
@@ -152,8 +143,6 @@ Here's a snippet from the navbar shown in the screenshot above. We utilize [font
 
 [nunjucks]: https://github.com/mozilla/nunjucks
 
-[nunjucks-highlight.js]: https://github.com/niftylettuce/nunjucks-highlight.js
-
 [lad]: https://lad.js.org
 
-[lipo]: https://lipo.io
+[sharp]: https://github.com/lovell/sharp

@@ -1,3 +1,5 @@
+const process = require('process');
+
 const ms = require('ms');
 const nodemailer = require('nodemailer');
 
