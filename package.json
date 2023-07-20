@@ -30,7 +30,7 @@
     "cheerio": "^1.0.0-rc.11",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.1",
-    "eslint": "^8.17.0",
+    "eslint": "8.39.0",
     "eslint-config-xo-lass": "^2.0.1",
     "fixpack": "^4.0.0",
     "husky": "^8.0.1",
