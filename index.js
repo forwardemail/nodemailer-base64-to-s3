@@ -6,7 +6,7 @@ const zlib = require('zlib');
 const { Buffer } = require('buffer');
 const { promisify } = require('util');
 
-const AWS = require('aws-sdk');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const sharp = require('sharp');
 const _ = require('lodash');
 const debug = require('debug')('nodemailer-base64-to-s3');
@@ -46,14 +46,7 @@ const base64ToS3 = (options = {}) => {
   if (_.startsWith(opts.dir, '/')) opts.dir = opts.dir.slice(1);
 
   // prepare AWS upload using config
-  const s3 = new AWS.S3(opts.aws);
-
-  // we cannot currently use this since it does not return a promise
-  // <https://github.com/aws/aws-sdk-js/pull/1079>
-  // await s3obj.upload({ Body }).promise();
-  //
-  // so instead we use promisify to convert it to a promise
-  const upload = promisify(s3.upload).bind(s3);
+  const s3Client = new S3Client(opts.aws);
 
   async function compile(mail, fn) {
     try {
@@ -124,6 +117,7 @@ const base64ToS3 = (options = {}) => {
     const Key = `${opts.dir}${fileName}`;
 
     const obj = {
+      ...opts.aws.params,
       Key,
       ACL: 'public-read',
       Body,
@@ -135,7 +129,9 @@ const base64ToS3 = (options = {}) => {
     // use a fallback dir if the upload fails
     // but only if the environment is not production
     try {
-      const data = cache[Key] ? cache[Key] : await upload(obj);
+      const data = cache[Key]
+        ? cache[Key]
+        : await s3Client.send(new PutObjectCommand(obj));
       if (cache[Key]) debug(`hitting cache for ${Key}`);
 
       const replacement = isSANB(opts.cloudFrontDomainName)

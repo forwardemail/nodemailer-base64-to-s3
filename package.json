@@ -15,7 +15,7 @@
     "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com/)"
   ],
   "dependencies": {
-    "aws-sdk": "^2.1152.0",
+    "@aws-sdk/client-s3": "^3.373.0",
     "debug": "^4.3.4",
     "is-string-and-not-blank": "^0.0.2",
     "lodash": "^4.17.21",
